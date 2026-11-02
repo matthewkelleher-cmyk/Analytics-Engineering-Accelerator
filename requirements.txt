@@ -1,7 +1,7 @@
-# Pin exact versions after the first successful build. Get them with:
-#   pip freeze | grep -iE '^(dbt-core|dbt-snowflake|python-dotenv|requests|snowflake-connector-python)=='
-dbt-core
-dbt-snowflake
-snowflake-connector-python
-requests
-python-dotenv
+# these were pinned from the first successful build on Python 3.12. Commit
+#   command used to find the version to pin     pip freeze | grep -iE '^(dbt-core|dbt-snowflake|python-dotenv|requests|snowflake-connector-python)=='
+dbt-core==1.12.6
+dbt-snowflake==1.12.4
+python-dotenv==1.2.4
+requests==2.34.2
+snowflake-connector-python==4.8.1
