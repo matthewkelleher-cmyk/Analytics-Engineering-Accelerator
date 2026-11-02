@@ -1,0 +1,22 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+*.p8
+*.pem
+rsa_key*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# dbt
+target/
+dbt_packages/
+logs/
+
+# Editor and tool files
+.DS_Store
+.claude/settings.local.json

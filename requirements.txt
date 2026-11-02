@@ -1,0 +1,7 @@
+# Pin exact versions after the first successful build. Get them with:
+#   pip freeze | grep -iE '^(dbt-core|dbt-snowflake|python-dotenv|requests|snowflake-connector-python)=='
+dbt-core
+dbt-snowflake
+snowflake-connector-python
+requests
+python-dotenv
