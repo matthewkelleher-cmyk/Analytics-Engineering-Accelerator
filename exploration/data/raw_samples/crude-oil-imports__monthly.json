@@ -1,0 +1,110 @@
+{
+  "warnings": [
+    {
+      "warning": "incomplete return",
+      "description": "The API can only return 5000 rows in JSON format.  Please consider constraining your request with facet, start, or end, or using offset to paginate results."
+    }
+  ],
+  "response": {
+    "total": "561178",
+    "dateFormat": "YYYY-MM",
+    "frequency": "monthly",
+    "data": [
+      {
+        "period": "2026-08",
+        "originId": "CTY_AE",
+        "originName": "United Arab Emirates",
+        "originType": "CTY",
+        "originTypeName": "Country",
+        "destinationId": "PP_5",
+        "destinationName": "PADD5 (West Coast)",
+        "destinationType": "PP",
+        "destinationTypeName": "Port PADD",
+        "gradeId": "LSO",
+        "gradeName": "Light Sour",
+        "quantity": "1578",
+        "quantity-units": "thousand barrels"
+      },
+      {
+        "period": "2026-08",
+        "originId": "CTY_AE",
+        "originName": "United Arab Emirates",
+        "originType": "CTY",
+        "originTypeName": "Country",
+        "destinationId": "PS_CA",
+        "destinationName": "California",
+        "destinationType": "PS",
+        "destinationTypeName": "Port State",
+        "gradeId": "LSO",
+        "gradeName": "Light Sour",
+        "quantity": "1578",
+        "quantity-units": "thousand barrels"
+      },
+      {
+        "period": "2026-08",
+        "originId": "CTY_AE",
+        "originName": "United Arab Emirates",
+        "originType": "CTY",
+        "originTypeName": "Country",
+        "destinationId": "PT_2709",
+        "destinationName": "Long Beach, CA",
+        "destinationType": "PT",
+        "destinationTypeName": "Port",
+        "gradeId": "LSO",
+        "gradeName": "Light Sour",
+        "quantity": "1578",
+        "quantity-units": "thousand barrels"
+      },
+      {
+        "period": "2026-08",
+        "originId": "CTY_AE",
+        "originName": "United Arab Emirates",
+        "originType": "CTY",
+        "originTypeName": "Country",
+        "destinationId": "RF_97",
+        "destinationName": "TESORO REFINING & MARKETING / CARSON/WILMINGTON / CA",
+        "destinationType": "RF",
+        "destinationTypeName": "Refinery",
+        "gradeId": "LSO",
+        "gradeName": "Light Sour",
+        "quantity": "1578",
+        "quantity-units": "thousand barrels"
+      },
+      {
+        "period": "2026-08",
+        "originId": "CTY_AE",
+        "originName": "United Arab Emirates",
+        "originType": "CTY",
+        "originTypeName": "Country",
+        "destinationId": "RP_5",
+        "destinationName": "PADD5 (West Coast)",
+        "destinationType": "RP",
+        "destinationTypeName": "Refinery PADD",
+        "gradeId": "LSO",
+        "gradeName": "Light Sour",
+        "quantity": "1578",
+        "quantity-units": "thousand barrels"
+      }
+    ],
+    "description": "Crude oil imports by country to destination, \r\n        includes type, grade, quantity.  Source: EIA-814  Interactive data \r\n        product:  www.eia.gov/petroleum/imports/companylevel/"
+  },
+  "request": {
+    "command": "/v2/crude-oil-imports/data/",
+    "params": {
+      "frequency": "monthly",
+      "sort": [
+        {
+          "column": "period",
+          "direction": "desc"
+        }
+      ],
+      "offset": "0",
+      "length": "5",
+      "data": [
+        "quantity"
+      ]
+    }
+  },
+  "apiVersion": "2.1.14",
+  "ExcelAddInVersion": "2.1.0"
+}
