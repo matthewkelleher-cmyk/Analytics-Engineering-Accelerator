@@ -22,7 +22,7 @@ from pathlib import Path
 import requests
 
 BASE = "https://api.eia.gov/v2"
-OUT_DIR = Path("data/raw_samples")
+OUT_DIR = Path("exploration/raw_samples_oil")
 
 # Top-level routes to walk.
 ROOT_ROUTES = ["petroleum", "crude-oil-imports"]
