@@ -13,7 +13,7 @@ Each script has a catalog mode (route metadata only) and a sample mode (the 5 ne
 ## Summary
 
 - **Monthly sources (oil).** `crude-oil-imports` and `petroleum/move/imp` update monthly with about a two-month lag (newest period 2026-08 on Nov 3). They hold repeated rows that would double count if summed as they come.
-- **Weekly-batch sources (prices).** Spot prices carry daily values, but they seem to arrive in weekly batches about a week late. The newest daily Henry Hub price on Nov 3 was 2026-10-27. Petroleum spot prices (`petroleum/pri/spt`) are not sampled yet.
+- **Weekly-batch sources (prices).** Spot prices carry daily values, but they seem to arrive in weekly batches about a week late. The newest daily Henry Hub price on Nov 3 was 2026-10-27. The petroleum spot prices (`petroleum/pri/spt`, WTI and Brent) show the same pattern: newest daily date 2026-10-27 on Nov 3.
 - **Daily source (electricity).** `electricity/rto` is the only source found that gets new data almost every day (daily routes 0 to 2 days behind, hourly routes 9 to 32 hours behind). It repeats every row once per timezone.
 - **Natural gas** is not used (see below).
 
@@ -31,7 +31,7 @@ Routes of interest from the petroleum catalog (route-level newest period, as pri
 | Route | Frequencies | Newest period |
 |---|---|---|
 | `petroleum/move/imp` | monthly, annual | 2026-08 |
-| `petroleum/move/wimpc` (weekly imports, not sampled) | weekly, four-week average | 2026-10-23 |
+| `petroleum/move/wimpc` (not sampled) | weekly, four-week average | 2026-10-23 |
 | `petroleum/pri/spt` (spot prices) | daily, weekly, monthly, annual | 2026-10-23 |
 | `petroleum/pri/fut` | daily, weekly, monthly, annual | 2024-04-05 (stale) |
 | `petroleum/pri/gnd` (retail gasoline and diesel) | weekly, monthly, annual | 2026-11-02 |
@@ -44,7 +44,7 @@ Latest periods as of about 16:45 UTC on 2026-11-03.
 |---|---|---|---|
 | `crude-oil-imports` | monthly | 2026-08 | about 2 months |
 | `petroleum/move/imp` | monthly | 2026-08 | about 2 months |
-| `petroleum/pri/spt` | daily (not sampled yet) | 2026-10-23 at route level | to check |
+| `petroleum/pri/spt` (`RWTC`, `RBRTE`) | daily | 2026-10-27 | 7 days |
 | `natural-gas/pri/fut` | daily | 2026-10-27 | 7 days |
 | `natural-gas/pri/fut` | weekly | 2026-10-23 | 11 days |
 | `electricity/rto/daily-region-data` | daily | 2026-11-03 | current day (forecast rows only) |
@@ -54,6 +54,8 @@ Latest periods as of about 16:45 UTC on 2026-11-03.
 | `electricity/rto/fuel-type-data` | hourly | 2026-11-03T07 | about 10 hours |
 | `electricity/rto/region-sub-ba-data` | hourly | 2026-11-03T08 | about 9 hours |
 | `electricity/rto/interchange-data` | hourly | 2026-11-02T08 | about 32 hours |
+
+Second reading for the chosen filter (`US48`, daily in Eastern time), Nov 3 at 20:19 UTC: daily newest 2026-11-02 (unchanged from the first reading), hourly newest 2026-11-03T04, about 16 hours behind. The earlier 9-hour figure was the newest hour across all respondents; `US48` is an aggregate and trails the operators. Whether the daily route advances every day is not confirmed until the reading is repeated on Nov 4 or later.
 
 Release rhythm, from EIA's own pages and one Reuters schedule note:
 
@@ -71,13 +73,26 @@ Sources: [PSM release notice](https://www.eia.gov/petroleum/supply/monthly/notic
 ### `crude-oil-imports` (monthly: 561,178 rows; annual: 92,057 rows)
 
 - One row per period, origin, destination and grade. The value column is `quantity` in thousand barrels, as text.
-- **The same quantity is repeated at five destination levels** (`destinationType`): Port PADD (`PP`), Port State (`PS`), Port (`PT`), Refinery (`RF`) and Refinery PADD (`RP`). For August 2026, UAE light sour crude shows 1,578 at all five. For 2025, California (9,716) plus Washington (416) equals PADD 5 (10,132). Summing the table as it comes overcounts about fivefold.
-- The origin has a type too (`originType`, for example `CTY` for country), which probably needs the same treatment. Not checked yet.
+- **The same quantity is repeated at seven destination levels** (`destinationType`): Port (`PT`), Port State (`PS`), Port PADD (`PP`), Refinery (`RF`), Refinery State (`RS`), Refinery PADD (`RP`) and United States (`US`). They form two parallel branches, port (`PT`, `PS`, `PP`) and refinery (`RF`, `RS`, `RP`), both rolling up to the US total. For August 2026, UAE light sour crude shows 1,578 at all the levels it appears in. For 2025, California (9,716) plus Washington (416) equals PADD 5 (10,132). Summing the table as it comes overcounts up to sevenfold.
+- **Reconciliation check (August 2026, country origins, `quantity` summed):** every destination level gives 204,420 thousand barrels. Row counts: `US` 40, `PT` 149, `PS` 106, `PP` 66, `RF` 180, `RS` 112, `RP` 66.
+- **The origin repeats too** (`originType`): country (`CTY`), region (`REG`), OPEC or non-OPEC (`OPN`) and `WORLD`. One level has to be chosen.
+- **Grades (`gradeId`)** are five flat values (`HSW`, `MED`, `HSO`, `LSW`, `LSO`) and do not look nested.
+- The API gives no parent links between levels, so port to state and PADD has to be derived (the port names carry a state suffix).
 
 ### `petroleum/move/imp` (monthly: 233,720 rows; annual: 21,346 rows)
 
 - Facets: `duoarea`, `product`, `process`, `series`. The value column is `value`, as text, with a `units` field.
-- **The same measure appears in two units in one column**: `MAPIMP11` in thousand barrels (`MBBL`) and `MAPIMP12` in thousand barrels per day (`MBBL/D`). They must not be summed together.
+- **The same measure appears in two units in one column**: `MAPIMP11` in thousand barrels (`MBBL`) and `MAPIMP12` in thousand barrels per day (`MBBL/D`). They must not be summed together. Of 870 series, 437 are in thousand barrels and 433 per day.
+- **Areas (`duoarea`)** are the five PADDs plus `NUS-Z00` (the U.S. total), so summing areas double counts.
+- **Products (`product`)** are 80 values and nested: totals such as `EP00` (crude oil and petroleum products) and `EPD0` (distillate) sit beside their subcategories.
+- **Process (`process`)** has one value, `IM0` (imports), so it is constant.
+- Crude (`EPC0`) overlaps with `crude-oil-imports`, which has the origin, port and grade detail.
+
+### `petroleum/pri/spt` (spot prices)
+
+- Eleven series. Two are crude benchmarks in dollars per barrel (`$/BBL`): `RWTC` (Cushing, OK WTI) and `RBRTE` (Europe Brent). The other nine are refined product prices in dollars per gallon (New York Harbor, Gulf Coast and Los Angeles gasoline, diesel, heating oil and jet fuel, and Mont Belvieu propane).
+- Daily rows: WTI 10,281 and Brent 10,008, so the two do not share every date (holidays differ). A spread has to be calculated only where both exist.
+- Newest daily rows on Nov 3: 2026-10-27 for both (WTI 103.37, Brent 123.10), seven days behind, the same lag as natural gas. The weekly-batch idea is still to be confirmed on Nov 4.
 
 ### `electricity/rto/daily-fuel-type-data` (5,766,693 rows)
 
@@ -105,7 +120,7 @@ Sources: [PSM release notice](https://www.eia.gov/petroleum/supply/monthly/notic
 
 ## What follows from this
 
-These are written up in the INTENTIONAL_DESIGN_DECISIONS doc (decisions 4 to 12):
+These are written up in the INTENTIONAL_DESIGN_DECISIONS doc (decisions 4 to 13):
 
 - Use the EIA API for every source, and load monthly data, never monthly and annual together.
 - Pick one level, one unit and one timezone for each fact table.
@@ -114,11 +129,15 @@ These are written up in the INTENTIONAL_DESIGN_DECISIONS doc (decisions 4 to 12)
 - Reload a trailing window and merge on the natural key, to catch revisions.
 - Use filtered electricity data as the daily source: `US48` as a reference series plus `ERCO`, `CISO`, `PJM`, `MISO`, `NYIS` and `ISNE`, Eastern time, all fuel types (163,029 rows, decision 11).
 - Do not use natural gas: its daily data arrives in weekly batches, its futures stopped in 2024, and it adds little beyond oil prices and electricity.
+- Use crude imports at country origin (`CTY`) and port destination (`PT`), with state and PADD derived from the port name and checked against EIA's published `PS` and `PP` rows. All seven destination levels summed to the same 204,420 thousand barrels for August 2026.
+- Use daily WTI (`RWTC`) and Brent (`RBRTE`) spot prices, with the spread calculated only on dates where both exist. Leave out refined product imports (`petroleum/move/imp`).
+- Build several purpose-built marts at one named grain each, with every calculation in dbt (decision 13).
 
 ## Open questions
 
-- Which crude import level (port or refinery) and origin level to keep, and which unit for petroleum imports.
-- Whether the spot price routes follow the weekly-batch pattern. Check the newest daily date today and again on Wednesday afternoon, Nov 4.
+- Which products to keep from `petroleum/move/imp` (levels and unit are chosen: crude imports origin `CTY` and destination `PT`; petroleum imports `MBBL` for the five PADDs).
+- Whether port names parse cleanly to a state, so `PT` can roll up to `PS` and `PP`. The published `PS` and `PP` rows are the test.
+- Whether the spot price routes follow the weekly-batch pattern. The newest daily date was 2026-10-27 on Nov 3; check again on Wednesday afternoon, Nov 4, to see whether several days arrive at once.
 - How far behind the actual types (`D`, `NG`, `TI`) run on `daily-region-data`, if that route is added.
 - How large the revisions to earlier months are, which sets the reload window.
 - Whether a daily probe that loads when new data appears satisfies the brief's request for a daily refresh.
