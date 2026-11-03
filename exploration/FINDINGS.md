@@ -83,10 +83,13 @@ Sources: [PSM release notice](https://www.eia.gov/petroleum/supply/monthly/notic
 
 - Facets: `respondent`, `fueltype`, `timezone`. The value is in `megawatthours`, as text.
 - **Every respondent, fuel and day appears once per timezone** (Arizona, Central, Eastern, Mountain, Pacific), with different values, because each timezone draws the day boundary differently. One timezone must be chosen.
+- **Fuel types:** 20 entries but only 16 distinct ids (`NUC`, `BAT`, `UES`, `PS`, `GEO`, `WNB`, `UNK`, `OIL`, `WAT`, `WND`, `COL`, `SNB`, `NG`, `OES`, `OTH`, `SUN`). Four ids appear twice with different names (`BAT`, `UES`, `PS`, `SNB`), so a dimension has to key on the id and pick one name.
+- **Respondents:** 83, at mixed levels: the lower 48 total (`US48`), regional and state aggregates (for example `CAL`, `TEX`, `NY`, `FLA`, `MIDA`, `NE`, `SE`, `NW`), large grid operators (for example `ERCO`, `CISO`, `PJM`, `MISO`, `NYIS`, `ISNE`, `SWPP`) and single utilities or plants. The aggregates appear to contain the operators beneath them, so summing across respondents would double count.
+- **Filter sizes** (daily frequency, Eastern timezone, newest day 2026-11-02 in both cases): `US48` alone is 28,191 rows; `US48` plus `ERCO`, `CISO`, `PJM`, `MISO`, `NYIS` and `ISNE` is 163,029 rows. A full load of the larger filter is 33 pages of 5,000.
 
 ### `electricity/rto/daily-region-data` (4,057,740 rows)
 
-- Facets: `respondent`, `type`, `timezone`. The newest rows (2026-11-03) are all type `DF`, the day-ahead demand forecast, which is why the route reaches the current day. Other types, and how far behind their actuals run, are not listed yet.
+- Facets: `respondent`, `type`, `timezone`. The newest rows (2026-11-03) are all type `DF`, the day-ahead demand forecast, which is why the route reaches the current day. The `type` facet has four values: `D` (demand), `DF` (day-ahead demand forecast), `NG` (net generation) and `TI` (total interchange). How far behind the actual types run has not been checked.
 
 ### `natural-gas/pri/fut` (daily 37,872 rows; weekly 7,868; monthly 2,026; annual 169)
 
@@ -109,14 +112,13 @@ These are written up in the INTENTIONAL_DESIGN_DECISIONS doc (decisions 4 to 12)
 - Keep raw rows as they arrive and type them in staging.
 - Run a probe daily and load only when something is newer, with a watermark per route and frequency and a run log.
 - Reload a trailing window and merge on the natural key, to catch revisions.
-- Use filtered electricity data as the daily source.
+- Use filtered electricity data as the daily source: `US48` as a reference series plus `ERCO`, `CISO`, `PJM`, `MISO`, `NYIS` and `ISNE`, Eastern time, all fuel types (163,029 rows, decision 11).
 - Do not use natural gas: its daily data arrives in weekly batches, its futures stopped in 2024, and it adds little beyond oil prices and electricity.
 
 ## Open questions
 
-- Which respondents, timezone and fuel types to keep for electricity (the facet value lists are the next step).
 - Which crude import level (port or refinery) and origin level to keep, and which unit for petroleum imports.
 - Whether the spot price routes follow the weekly-batch pattern. Check the newest daily date today and again on Wednesday afternoon, Nov 4.
-- How far back actual (non-forecast) electricity data runs on `daily-region-data`.
+- How far behind the actual types (`D`, `NG`, `TI`) run on `daily-region-data`, if that route is added.
 - How large the revisions to earlier months are, which sets the reload window.
 - Whether a daily probe that loads when new data appears satisfies the brief's request for a daily refresh.
