@@ -1,0 +1,45 @@
+name: Daily EIA probe
+
+# Runs the freshness probe: asks EIA what is newest, loads only the sources that have
+# something new, and writes every decision to MK_RAW.PIPELINE_RUN_LOG.
+on:
+  workflow_dispatch:   # manual run: Actions tab, "Daily EIA probe", "Run workflow"
+  # Switch the schedule on once manual runs succeed. GitHub does not start scheduled runs
+  # at exact times, and may disable them on a public repo after a period without activity
+  # (check GitHub's docs for the current rule).
+  # schedule:
+  #   - cron: "17 14 * * *"   # every day at 14:17 UTC
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eia-probe
+  cancel-in-progress: false   # never stop a load half way; queue the next run instead
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"   # the same version as the dev container
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Probe EIA and load new data
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ROLE: ENERGY_PIPELINE_ROLE
+          SNOWFLAKE_WAREHOUSE: ENERGY_WH
+          SNOWFLAKE_DATABASE: TIL_DATA_ENGINEERING
+          SNOWFLAKE_RAW_SCHEMA: MK_RAW
+        run: python ingestion/probe.py

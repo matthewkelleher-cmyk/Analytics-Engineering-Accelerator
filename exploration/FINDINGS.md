@@ -55,7 +55,7 @@ Latest periods as of about 16:45 UTC on 2026-11-03.
 | `electricity/rto/region-sub-ba-data` | hourly | 2026-11-03T08 | about 9 hours |
 | `electricity/rto/interchange-data` | hourly | 2026-11-02T08 | about 32 hours |
 
-Second reading for the chosen filter (`US48`, daily in Eastern time), Nov 3 at 20:19 UTC: daily newest 2026-11-02 (unchanged from the first reading), hourly newest 2026-11-03T04, about 16 hours behind. The earlier 9-hour figure was the newest hour across all respondents; `US48` is an aggregate and trails the operators. Whether the daily route advances every day is not confirmed until the reading is repeated on Nov 4 or later.
+Second reading for the chosen filter (`US48`, daily in Eastern time), Nov 3 at 20:19 UTC: daily newest 2026-11-02 (unchanged from the first reading), hourly newest 2026-11-03T04, about 16 hours behind. The earlier 9-hour figure was the newest hour across all respondents; `US48` is an aggregate and trails the operators. Third reading on Nov 11 (19:06 UTC), from a dry run of the electricity loader: 163,564 rows for the chosen filter, newest day 2026-11-10, again about one day behind. In eight days the newest day moved from 2026-11-02 to 2026-11-10 and the filter gained 535 rows, about 67 a day. The daily route does advance and holds a steady one-day lag at both readings. The natural key (`period`, `respondent`, `fueltype`, `timezone`) is unique across all 163,564 rows.
 
 Release rhythm, from EIA's own pages and one Reuters schedule note:
 
@@ -78,6 +78,8 @@ Sources: [PSM release notice](https://www.eia.gov/petroleum/supply/monthly/notic
 - **The origin repeats too** (`originType`): country (`CTY`), region (`REG`), OPEC or non-OPEC (`OPN`) and `WORLD`. One level has to be chosen.
 - **Grades (`gradeId`)** are five flat values (`HSW`, `MED`, `HSO`, `LSW`, `LSO`) and do not look nested.
 - The API gives no parent links between levels, so port to state and PADD has to be derived (the port names carry a state suffix).
+- **The API's total overstates the rows it returns.** For the loader's filter (country origins, port destinations, monthly from 2009-01) the API reports 39,867 rows, but paging through all of them returned 38,286: seven full pages, then a last page of 3,286 instead of 4,867. Checked month by month, the total is 1 to 2 rows above the rows returned in 13 of the 27 months from 2024-06 to 2026-08, and equal in every month since 2025-09. This probably means rows without a quantity are counted but not returned when `quantity` is requested. That is a likely explanation, not a confirmed one. The crude loader tolerates the gap and reports it in its summary (`shortfall`); the spot price and electricity loaders paged through every row they were promised.
+- **The natural key is unique.** (`period`, `originId`, `destinationId`, `gradeId`) has no repeated combination across all 38,286 returned rows (2009-01 to 2026-08). Row ids look like `CTY_AE` for origins and `PT_2812` for ports, and the port name carries its state as a suffix (for example `Richmond, CA`), which supports deriving the state from the name. Units are `thousand barrels`.
 
 ### `petroleum/move/imp` (monthly: 233,720 rows; annual: 21,346 rows)
 
@@ -92,7 +94,9 @@ Sources: [PSM release notice](https://www.eia.gov/petroleum/supply/monthly/notic
 
 - Eleven series. Two are crude benchmarks in dollars per barrel (`$/BBL`): `RWTC` (Cushing, OK WTI) and `RBRTE` (Europe Brent). The other nine are refined product prices in dollars per gallon (New York Harbor, Gulf Coast and Los Angeles gasoline, diesel, heating oil and jet fuel, and Mont Belvieu propane).
 - Daily rows: WTI 10,281 and Brent 10,008, so the two do not share every date (holidays differ). A spread has to be calculated only where both exist.
-- Newest daily rows on Nov 3: 2026-10-27 for both (WTI 103.37, Brent 123.10), seven days behind, the same lag as natural gas. The weekly-batch idea is still to be confirmed on Nov 4.
+- Newest daily rows on Nov 3: 2026-10-27 for both (WTI 103.37, Brent 123.10), seven days behind, the same lag as natural gas.
+- Second reading on Nov 11 (19:04 UTC), from a dry run of the loader: 20,299 rows for the two series (first period 1986-01-02), newest 2026-11-03. That is 10 more rows than on Nov 3, five trading days for two series. Both newest dates are Tuesdays, one week apart, consistent with weekly updates and a lag of about a week. The day of the week on which new rows arrive is not yet known.
+- The natural key (`period`, `series`) is unique across all 20,299 rows.
 
 ### `electricity/rto/daily-fuel-type-data` (5,766,693 rows)
 
@@ -137,7 +141,7 @@ These are written up in the INTENTIONAL_DESIGN_DECISIONS doc (decisions 4 to 13)
 
 - Which products to keep from `petroleum/move/imp` (levels and unit are chosen: crude imports origin `CTY` and destination `PT`; petroleum imports `MBBL` for the five PADDs).
 - Whether port names parse cleanly to a state, so `PT` can roll up to `PS` and `PP`. The published `PS` and `PP` rows are the test.
-- Whether the spot price routes follow the weekly-batch pattern. The newest daily date was 2026-10-27 on Nov 3; check again on Wednesday afternoon, Nov 4, to see whether several days arrive at once.
+- On which day of the week new spot price rows arrive. The newest daily date was 2026-10-27 on Nov 3 and 2026-11-03 on Nov 11, both Tuesdays; the probe's run log will show the arrival pattern.
 - How far behind the actual types (`D`, `NG`, `TI`) run on `daily-region-data`, if that route is added.
 - How large the revisions to earlier months are, which sets the reload window.
 - Whether a daily probe that loads when new data appears satisfies the brief's request for a daily refresh.

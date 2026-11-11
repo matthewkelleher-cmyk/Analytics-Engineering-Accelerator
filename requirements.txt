@@ -5,3 +5,4 @@ dbt-snowflake==1.12.4
 python-dotenv==1.2.4
 requests==2.34.2
 snowflake-connector-python==4.8.1
+pytest==9.2.0
