@@ -4,11 +4,10 @@ name: Daily EIA probe
 # something new, and writes every decision to MK_RAW.PIPELINE_RUN_LOG.
 on:
   workflow_dispatch:   # manual run: Actions tab, "Daily EIA probe", "Run workflow"
-  # Switch the schedule on once manual runs succeed. GitHub does not start scheduled runs
-  # at exact times, and may disable them on a public repo after a period without activity
-  # (check GitHub's docs for the current rule).
-  # schedule:
-  #   - cron: "17 14 * * *"   # every day at 14:17 UTC
+  # GitHub does not start scheduled runs at exact times, and may disable them on a public
+  # repo after a period without activity (check GitHub's docs for the current rule).
+  schedule:
+    - cron: "17 17 * * *"   # every day at 17:17 UTC (12:17 pm Eastern)
 
 permissions:
   contents: read
@@ -19,12 +18,12 @@ concurrency:
 
 jobs:
   probe:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # pinned: ubuntu-latest is moving to Ubuntu 26.04 (Oct 19 to Nov 19, 2026)
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"   # the same version as the dev container
           cache: pip
