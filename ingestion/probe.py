@@ -17,6 +17,7 @@ picked up the next time any load runs, because each load re-reads a trailing win
 import argparse
 import json
 import logging
+import os
 import sys
 import time
 import uuid
@@ -28,6 +29,22 @@ from sources import SOURCES
 
 log = logging.getLogger("probe")
 LOAD_DECISIONS = {"initial_load", "load", "forced_load"}
+
+
+def run_context(env=None):
+    """Where this run came from: (triggered_by, run_url). The URL is set on GitHub only."""
+    env = os.environ if env is None else env
+    if env.get("GITHUB_ACTIONS") == "true":
+        event = env.get("GITHUB_EVENT_NAME", "unknown")
+        triggered_by = {"schedule": "github_actions_schedule",
+                        "workflow_dispatch": "github_actions_manual"}.get(
+                            event, f"github_actions_{event}")
+        server = env.get("GITHUB_SERVER_URL", "https://github.com")
+        url = f"{server}/{env.get('GITHUB_REPOSITORY')}/actions/runs/{env.get('GITHUB_RUN_ID')}"
+        return triggered_by, url
+    if env.get("CODESPACES") == "true":
+        return "codespaces", None
+    return "local", None
 
 
 def decide(newest_at_source, newest_loaded, force=False):
@@ -92,6 +109,7 @@ def main(argv=None):
     load_env()
 
     run_id = uuid.uuid4().hex
+    triggered_by, run_url = run_context()
     names = args.source or list(SOURCES)
     conn = None
     try:
@@ -103,6 +121,7 @@ def main(argv=None):
         for name in names:
             record = probe_source(SOURCES[name], client, conn,
                                   dry_run=args.dry_run, force=args.force)
+            record.update(triggered_by=triggered_by, run_url=run_url)
             records.append(record)
             if not args.dry_run:
                 write_log(conn, run_id, record)

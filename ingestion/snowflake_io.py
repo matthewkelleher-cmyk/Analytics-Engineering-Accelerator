@@ -129,18 +129,25 @@ CREATE TABLE IF NOT EXISTS {qualified(LOG_TABLE)} (
   shortfall NUMBER,
   batch_id VARCHAR,
   message VARCHAR,
-  duration_seconds FLOAT
+  duration_seconds FLOAT,
+  triggered_by VARCHAR,
+  run_url VARCHAR
 )""")
+    # a table created before these columns existed gets them added; rows already there stay NULL
+    for column in ("triggered_by", "run_url"):
+        conn.cursor().execute(
+            f"ALTER TABLE {qualified(LOG_TABLE)} ADD COLUMN IF NOT EXISTS {column} VARCHAR")
 
 
 def write_log(conn, run_id, record):
     conn.cursor().execute(
         f"""INSERT INTO {qualified(LOG_TABLE)}
 (run_id, source, route, newest_at_source, newest_loaded, decision, status, rows_fetched,
- rows_inserted, rows_updated, shortfall, batch_id, message, duration_seconds)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+ rows_inserted, rows_updated, shortfall, batch_id, message, duration_seconds,
+ triggered_by, run_url)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
         (run_id, record["source"], record["route"], record["newest_at_source"],
          record["newest_loaded"], record["decision"], record["status"],
          record["rows_fetched"], record["rows_inserted"], record["rows_updated"],
          record["shortfall"], record["batch_id"], record["message"],
-         record["duration_seconds"]))
+         record["duration_seconds"], record.get("triggered_by"), record.get("run_url")))

@@ -96,3 +96,14 @@ def test_a_failing_load_is_recorded_not_raised(stubs, monkeypatch):
     monkeypatch.setattr(probe, "run_load", boom)
     record = probe.probe_source(SPOT, FakeClient("2026-11-03"), conn=None)
     assert record["status"] == "error" and "merge failed" in record["message"]
+
+
+def test_run_context_says_where_a_run_came_from():
+    github = {"GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "schedule",
+              "GITHUB_REPOSITORY": "owner/repo", "GITHUB_RUN_ID": "42"}
+    assert probe.run_context(github) == (
+        "github_actions_schedule", "https://github.com/owner/repo/actions/runs/42")
+    assert probe.run_context({**github, "GITHUB_EVENT_NAME": "workflow_dispatch"})[0] == \
+        "github_actions_manual"
+    assert probe.run_context({"CODESPACES": "true"}) == ("codespaces", None)
+    assert probe.run_context({}) == ("local", None)
