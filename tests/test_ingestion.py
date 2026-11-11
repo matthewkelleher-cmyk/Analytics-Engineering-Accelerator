@@ -145,7 +145,7 @@ def test_merge_sql_and_counts(monkeypatch):
     inserted, updated = snowflake_io.merge_rows(conn, SOURCES["spot_prices"], prepared, "batch1")
     assert (inserted, updated) == (3, 1)
     sql = [entry[1] for entry in conn.log if entry[0] == "execute"]
-    assert "TIL_DATA_ENGINEERING.MK_RAW.eia_spot_prices_STAGE" in sql[0]
+    assert "TIL_DATA_ENGINEERING.MK_RAW.raw_eia_spot_prices_STAGE" in sql[0]
     merge = next(s for s in sql if s.startswith("MERGE"))
     assert "ON t.period = s.period AND t.series = s.series" in merge
     assert "t.row_hash <> s.row_hash" in merge

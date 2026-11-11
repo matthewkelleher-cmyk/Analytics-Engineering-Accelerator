@@ -27,7 +27,7 @@ class Source:
 SOURCES = {
     "crude_imports": Source(
         name="crude_imports",
-        table="eia_crude_imports",
+        table="raw_eia_crude_imports",
         route="crude-oil-imports",
         frequency="monthly",
         data_cols=("quantity",),
@@ -43,7 +43,7 @@ SOURCES = {
     ),
     "spot_prices": Source(
         name="spot_prices",
-        table="eia_spot_prices",
+        table="raw_eia_spot_prices",
         route="petroleum/pri/spt",
         frequency="daily",
         data_cols=("value",),
@@ -55,7 +55,7 @@ SOURCES = {
     ),
     "electricity": Source(
         name="electricity",
-        table="eia_electricity_daily_fuel_type",
+        table="raw_eia_electricity_daily_fuel_type",
         route="electricity/rto/daily-fuel-type-data",
         frequency="daily",
         data_cols=("value",),
