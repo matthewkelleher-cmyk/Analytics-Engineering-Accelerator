@@ -1,0 +1,6 @@
+# name project 
+name: 'eia_energy'
+version: '1.0.0'
+
+#profile name 
+profile: 'eia_energy'

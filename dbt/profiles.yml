@@ -1,0 +1,2 @@
+#top level key same as profile in dbt_project.yml
+profile: 'eia_energy'
