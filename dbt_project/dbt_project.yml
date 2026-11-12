@@ -4,3 +4,6 @@ version: '1.0.0'
 
 #profile name 
 profile: 'eia_energy'
+
+# add folders as they are manually created 
+model-paths: ["models"]

@@ -1,0 +1,11 @@
+version: 2 
+
+sources:
+  - name: mk_raw
+    database: TIL_DATA_ENGINEERING
+    schema: MK_RAW
+    description: All tables 
+    tables: 
+      - name: raw_eia_electricity_daily_fuel_type
+      - name: raw_eia_crude_imports
+      - name: raw_eia_spot_prices
