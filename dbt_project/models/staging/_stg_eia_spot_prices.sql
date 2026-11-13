@@ -13,7 +13,7 @@ FROM {{source('mk_raw','raw_eia_spot_prices')}}
         raw_row:"product"::string product,
         raw_row:"product-name"::string product_name,
         raw_row:"series-description"::string series_description,
-        raw_row:"units"::string,
+        raw_row:"units"::string units,
         raw_row:"value"::int value, 
         row_hash,
         _batch_id,
