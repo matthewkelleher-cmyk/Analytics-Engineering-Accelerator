@@ -12,7 +12,10 @@ FROM {{source('mk_raw', 'raw_eia_electricity_daily_fuel_type')}}
         raw_row:"timezone-description"::string time_zone_description,
         raw_row:"type-name"::string type_name,
         raw_row:"value"::int value,
-        raw_row:"value-units"::string value_units
+        raw_row:"value-units"::string value_units,
+        row_hash,
+        _batch_id,
+        _loaded_at
     FROM source
 )
 SELECT * FROM parsed 
