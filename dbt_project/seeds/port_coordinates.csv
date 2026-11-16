@@ -1,0 +1,120 @@
+﻿destination_id,port_name,state,latitude,longitude,coordinate_basis
+PT_3304,"Great Falls, MT",MT,47.502518,-111.29997,Census place
+PT_3307,"Denver, CO",CO,39.76185,-104.881105,Census place
+PT_3310,"Sweetgrass, MT",MT,48.998,-111.96,BTS
+PT_3316,"Piegan, MT",MT,48.998,-113.379,BTS
+PT_3322,"Del Bonita, MT",MT,48.999,-112.788,BTS
+PT_3382,"Natrona Aprt, WY",WY,42.908,-106.464,manual
+PT_3401,"Pembina, ND",ND,49,-97.237,BTS
+PT_3501,"Minneapolis, MN",MN,44.963324,-93.26832,Census place
+PT_3604,"Inter. Falls, MN",MN,48.608,-93.401,BTS
+PT_3608,"Superior, WI",WI,46.693164,-92.081086,Census place
+PT_3802,"Port Huron, MI",MI,42.999,-82.424,BTS
+PT_3901,"Chicago, IL",IL,41.837045,-87.684939,Census place
+PT_4503,"St Louis, MO",MO,38.635699,-90.244582,Census place
+PT_5505,"Tulsa, OK",OK,36.127949,-95.902316,Census place
+PT_2017,"Lake Charles, LA",LA,30.19902,-93.210835,Census place
+PT_2711,"El Segundo, CA",CA,33.910367,-118.425079,Census place
+PT_2820,"Martinez, CA",CA,37.998186,-122.114185,Census place
+PT_2830,"Carquinez St, CA",CA,38.056,-122.225,manual
+PT_3126,"Anchorage, AK",AK,61.17425,-149.284329,Census place
+PT_1105,"Paulsboro, NJ",NJ,39.839975,-75.23996,Census place
+PT_3010,"Anacortes, WA",WA,48.496,-122.6,BTS
+PT_3302,"Eastport, ID",ID,49.001,-116.181,BTS
+PT_1103,"Wilmington, DE",DE,39.735651,-75.532104,Census place
+PT_2013,"St Rose, LA",LA,29.963182,-90.307218,Census place
+PT_5306,"Texas City, TX",TX,29.424942,-94.890026,Census place
+PT_2704,"Los Angeles, CA",CA,34.019394,-118.410825,Census place
+PT_5310,"Galveston, TX",TX,29.186328,-94.965758,Census place
+PT_2002,"New Orleans, LA",LA,30.052877,-89.934502,Census place
+PT_2812,"Richmond, CA",CA,37.952278,-122.360609,Census place
+PT_1903,"Pascagoula, MS",MS,30.360067,-88.556327,Census place
+PT_3009,"Sumas, WA",WA,49.002,-122.265,BTS
+PT_3403,"Portal, ND",ND,48.999,-102.552,BTS
+PT_3006,"Everett, WA",WA,47.961199,-122.188933,Census place
+PT_2003,"Little Rock, AR",AR,34.723218,-92.356264,Census place
+PT_3007,"Port Angeles, WA",WA,48.122,-123.431,BTS
+PT_2104,"Beaumont, TX",TX,30.084912,-94.14533,Census place
+PT_5104,"Christianstd, VI",VI,17.746,-64.704,manual
+PT_1004,"Perth Amboy, NJ",NJ,40.52016,-74.271331,Census place
+PT_3906,"O'Hare Int Ap, IL",IL,41.9786,-87.9048,manual
+PT_3404,"Neche, ND",ND,49.001,-97.557,BTS
+PT_3803,"Sault St-Mar, MI",MI,46.509,-84.361,BTS
+PT_5203,"Pt Everglade, FL",FL,26.0925,-80.1186,manual
+PT_3205,"Honolulu Int Ap, HI",HI,21.3187,-157.9224,manual
+PT_3402,"Noyes, MN",MN,49,-97.207,BTS
+PT_2801,"San Fran Int Ap, CA",CA,37.6213,-122.379,manual
+PT_3101,"Juneau, AK",AK,58.372904,-134.178438,Census place
+PT_5504,"Oklahoma Cty, OK",OK,35.467079,-97.513657,Census place
+PT_3003,"Aberdn-Hoqua, WA",WA,46.975205,-123.811373,Census place
+PT_5502,"Amarillo, TX",TX,35.199903,-101.830194,Census place
+PT_1108,"Phil., PA",PA,40.009297,-75.133271,Census place
+PT_2014,"Good Hope, LA",LA,29.99,-90.4,manual
+PT_2901,"Astoria, OR",OR,46.187538,-123.814783,Census place
+PT_3601,"Duluth, MN",MN,46.774458,-92.134135,Census place
+PT_3902,"Peoria, IL",IL,40.751645,-89.617205,Census place
+PT_4105,"Toledo-Sandusky, OH",OH,41.664071,-83.581861,Census place
+PT_5301,"Houston, TX",TX,29.785743,-95.388806,Census place
+PT_1101,"Philadelphia, PA",PA,40.009297,-75.133271,Census place
+PT_2010,"Gramercy, LA",LA,30.061951,-90.693938,Census place
+PT_1102,"Chester, PA",PA,39.845558,-75.371882,Census place
+PT_1901,"Mobile, AL",AL,30.668246,-88.107853,Census place
+PT_2001,"Morgan City, LA",LA,29.710332,-91.191542,Census place
+PT_5312,"Corpus Chris, TX",TX,27.754252,-97.173385,Census place
+PT_2809,"Sanfrancisco, CA",CA,37.727239,-123.032229,Census place
+PT_5311,"Freeport, TX",TX,28.943296,-95.35607,Census place
+PT_3005,"Bellingham, WA",WA,48.753442,-122.470179,Census place
+PT_2101,"Port Arthur, TX",TX,29.900008,-93.89442,Census place
+PT_1003,"Newark, NJ",NJ,40.72422,-74.172574,Census place
+PT_2004,"Baton Rouge, LA",LA,30.440443,-91.133166,Census place
+PT_3002,"Tacoma, WA",WA,47.252199,-122.459832,Census place
+PT_3004,"Blaine, WA",WA,48.994,-122.749,BTS
+PT_3308,"Porthill, ID",ID,49,-116.499,BTS
+PT_2909,"Kalama, WA",WA,46.017142,-122.841937,Census place
+PT_2709,"Long Beach, CA",CA,33.780791,-118.16818,Census place
+PT_2802,"Eureka, CA",CA,40.799002,-124.153955,Census place
+PT_3301,"Raymond, MT",MT,48.999,-104.574,BTS
+PT_3904,"East Chicago, IN",IN,41.64813,-87.452885,Census place
+PT_3905,"Gary, IN",IN,41.59074,-87.347113,Census place
+PT_2102,"Sabine, TX",TX,29.7288,-93.8941,manual
+PT_3306,"Turner, MT",MT,49,-108.388,BTS
+PT_3808,"Escanaba, MI",MI,45.746289,-87.083605,Census place
+PT_3410,"Ambrose, ND",ND,48.999,-103.487,BTS
+PT_1402,"Newport News, VA",VA,37.076456,-76.520641,Census place
+PT_1703,"Savannah, GA",GA,32.012457,-81.194157,Census place
+PT_1001,"New York, NY",NY,40.662712,-73.938677,Census place
+PT_1303,"Baltimore, MD",MD,39.300061,-76.610518,Census place
+PT_2803,"Fresno, CA",CA,36.782697,-119.796184,Census place
+PT_3701,"Milwaukee, WI",WI,43.063348,-87.966695,Census place
+PT_1002,"Albany, NY",NY,42.665745,-73.798353,Census place
+PT_0712,"Champl-Rs Pt, NY",NY,45.009,-73.453,BTS
+PT_3309,"Scobey, MT",MT,49,-105.408,BTS
+PT_0715,"Trout River, NY",NY,44.992,-74.308,BTS
+PT_2811,"Oakland, CA",CA,37.769936,-122.225686,Census place
+PT_3001,"Seattle, WA",WA,47.619335,-122.351538,Census place
+PT_2015,"Vicksburg, MS",MS,32.322042,-90.881528,Census place
+PT_2604,"Nogales, AZ",AZ,31.333,-110.943,BTS
+PT_3201,"Honolu/Pearl, HI",HI,21.324347,-157.84764,Census place
+PT_0901,"Buff-Niag Fl, NY",NY,43.095,-79.056,BTS
+PT_0206,"Beecherfalls, VT",VT,45.013,-71.505,BTS
+PT_3820,"Mackinac Isl, MI",MI,45.860184,-84.625834,Census place
+PT_3417,"Fortuna, ND",ND,49,-103.809,BTS
+PT_3801,"Detroit, MI",MI,42.332,-83.048,BTS
+PT_3903,"Omaha, NE",NE,41.264013,-96.056496,Census place
+PT_4102,"Cinci-Lawrnburg, OH",OH,39.140183,-84.505829,Census place
+PT_1118,"Marcus Hook, PA",PA,39.81287,-75.41624,Census place
+PT_3303,"Salt Lk Cty, UT",UT,40.775366,-111.927266,Census place
+PT_2305,"Hidalgo, TX",TX,26.095,-98.271,BTS
+PT_4501,"Kansas City, MO",MO,39.125155,-94.550313,Census place
+PT_3414,"Sherwood, ND",ND,48.999,-101.628,BTS
+PT_3425,"Pinecreek, MN",MN,49,-95.978,BTS
+PT_3907,"Des Moines, IA",IA,41.57259,-93.610243,Census place
+PT_2712,"Ventura, CA",CA,34.26778,-119.254206,Census place
+PT_4116,"Port Of Entry-Owensboro, KY",KY,37.757172,-87.117398,Census place
+PT_1104,"Pittsburgh, PA",PA,40.439892,-79.975472,Census place
+PT_2103,"Orange, TX",TX,30.123528,-93.754548,Census place
+PT_1109,"Harrisburg, PA",PA,40.275891,-76.88502,Census place
+PT_1816,"Pt Canaveral, FL",FL,28.41,-80.631,manual
+PT_0401,"Boston, MA",MA,42.332735,-71.013513,Census place
+PT_5506,"Austin, TX",TX,30.298622,-97.754134,Census place
+PT_2713,"Port Hueneme, CA",CA,34.162143,-119.204177,Census place
