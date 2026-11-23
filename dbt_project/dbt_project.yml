@@ -13,16 +13,20 @@ models:
   eia_energy:
     staging:
       +materialized: view 
+      +schema: stg
     intermediate: 
       +materialized: view 
+      +schema: int
       dimensions:
         +materialized: table 
       facts:
         +materialized: table 
     marts:
       +materialized: table 
+      +schema: mart
 seeds: 
   eia_energy:
+    +schema: stg
     country_coordinates:
       +column_types:
         origin_id: varchar
@@ -41,4 +45,3 @@ seeds:
         latitude: float
         longitude: float 
         coordinate_basis: varchar
-        
