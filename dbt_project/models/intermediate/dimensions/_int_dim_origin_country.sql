@@ -8,7 +8,7 @@ with final as (
       is_known, 
       longitude, 
       latitude 
-    FROM {{ref('country_coordinates')}}
+    FROM {{ref('_stg_country_coordinates')}}
 )
 SELECT * 
 FROM final

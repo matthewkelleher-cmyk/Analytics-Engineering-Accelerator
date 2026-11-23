@@ -6,7 +6,7 @@ with final as (
         longitude, 
         latitude, 
         coordinate_basis
-    FROM {{ref('port_coordinates')}}
+    FROM {{ref('_stg_port_coordinates')}}
 )
 SELECT * 
 FROM final
