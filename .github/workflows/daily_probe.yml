@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Run Python tests
+        run: python -m pytest tests -q
+
       - name: Probe EIA and load new data
         env:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
