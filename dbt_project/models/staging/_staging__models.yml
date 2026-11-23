@@ -7,9 +7,16 @@ models:
       reference data is documented in the stg layer before the intermediate
       models use it. No transformation. One row per origin country, keyed
       on origin_id.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('country_coordinates')
     columns:
       - name: origin_id
         description: EIA origin identifier. Natural key of this table.
+        data_tests:
+          - not_null
+          - unique
       - name: origin_name
         description: Origin country name as published by EIA.
       - name: iso2
@@ -31,31 +38,75 @@ models:
       origin, destination and grade. Unpacks the raw JSON row into typed
       columns, converts period to a date, and strips the CTY_ prefix from
       the origin id. No rows are filtered or aggregated.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: source('mk_raw', 'raw_eia_crude_imports')
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - period
+              - origin_id
+              - destination_id
+              - grade_id
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "day(period) = 1"
+      - dbt_utils.recency:
+          config:
+            severity: warn
+          arguments:
+            datepart: day
+            field: period
+            interval: 125
     columns:
       - name: period
         description: First day of the reporting month, converted from the raw YYYY-MM text.
+        data_tests:
+          - not_null
       - name: origin_id
         description: EIA origin country id with the CTY_ prefix removed, so it joins to the country seed.
+        data_tests:
+          - not_null
       - name: destination_id
         description: EIA destination (port) id.
+        data_tests:
+          - not_null
       - name: destination_name
         description: Destination port name as published by EIA.
       - name: destination_type
         description: EIA code for the destination type.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['PT']
       - name: destination_type_name
         description: Description of the destination type.
       - name: grade_id
         description: EIA crude oil grade id.
+        data_tests:
+          - not_null
       - name: grade_name
         description: Crude oil grade name, such as its sulfur and density class.
       - name: origin_name
         description: Origin country name as published by EIA.
       - name: origin_type
         description: EIA code for the origin type.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['CTY']
       - name: origin_type_name
         description: Description of the origin type.
       - name: quantity
         description: Imported volume for the month, cast to an integer.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              config:
+                severity: warn
+              arguments:
+                expression: ">= 0"
       - name: quantity_units
         description: Unit of measure for quantity, as published by EIA.
       - name: row_hash
@@ -73,15 +124,44 @@ models:
       No rows are filtered. The US48 respondent is the national total and
       overlaps the individual operators, so it must never be summed with
       them. Storage fuel types can be negative.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: source('mk_raw', 'raw_eia_electricity_daily_fuel_type')
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - period
+              - respondent
+              - fuel_type
+      - dbt_utils.recency:
+          config:
+            severity: warn
+          arguments:
+            datepart: day
+            field: period
+            interval: 7
     columns:
       - name: period
         description: Date of the generation, converted from the raw YYYY-MM-DD text.
+        data_tests:
+          - not_null
       - name: respondent
         description: EIA code for the balancing authority or region reporting the generation.
+        data_tests:
+          - not_null
       - name: fuel_type
         description: EIA fuel type code, renamed from fueltype.
+        data_tests:
+          - not_null
       - name: time_zone
         description: EIA time zone code the daily totals are based on, renamed from timezone.
+        data_tests:
+          - accepted_values:
+              config:
+                severity: warn
+              arguments:
+                values: ['Eastern']
       - name: respondent_name
         description: Respondent name as published by EIA.
       - name: time_zone_description
@@ -90,6 +170,8 @@ models:
         description: Fuel type name as published by EIA.
       - name: value
         description: Generation for the day, cast to an integer. Can be negative for storage.
+        data_tests:
+          - not_null
       - name: value_units
         description: Unit of measure for value, as published by EIA.
       - name: row_hash
@@ -106,11 +188,39 @@ models:
       and converts period to a date. No rows are filtered. Weekends and
       market holidays have no rows, and WTI is negative on 2020-04-20, so
       value is not guaranteed to be positive.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: source('mk_raw', 'raw_eia_spot_prices')
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - period
+              - series
+      - dbt_utils.expression_is_true:
+          config:
+            severity: warn
+          arguments:
+            expression: "dayname(period) not in ('Sat', 'Sun')"
+      - dbt_utils.recency:
+          config:
+            severity: warn
+          arguments:
+            datepart: day
+            field: period
+            interval: 14
     columns:
       - name: period
         description: Trading date of the price, converted from the raw YYYY-MM-DD text.
+        data_tests:
+          - not_null
       - name: series
         description: EIA price series code, RWTC for WTI and RBRTE for Brent.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['RWTC', 'RBRTE']
       - name: area_name
         description: Pricing area name as published by EIA.
       - name: duoarea
@@ -129,6 +239,8 @@ models:
         description: Unit of measure for value, as published by EIA.
       - name: value
         description: Spot price for the day, cast to number(12,4). Can be negative.
+        data_tests:
+          - not_null
       - name: row_hash
         description: Hash of the raw row, added at ingestion.
       - name: _batch_id
@@ -142,9 +254,16 @@ models:
       reference data is documented in the stg layer before the intermediate
       models use it. No transformation. One row per destination port, keyed
       on destination_id.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('port_coordinates')
     columns:
       - name: destination_id
         description: EIA destination (port) identifier. Natural key of this table.
+        data_tests:
+          - not_null
+          - unique
       - name: port_name
         description: Port name as published by EIA.
       - name: state
