@@ -22,6 +22,37 @@ models:
       - name: date_day
         description: Calendar date. One row per day.
 
+  - name: _int_source_coverage
+    description: >
+      One row per EIA source with its grain, first and last period, last
+      load time and row count. days_since_last_period measures how old the
+      newest data is, and days_behind_newest_source measures the lag
+      between the sources, which differ in grain and publishing delay.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('_int_source_coverage')
+    columns:
+      - name: source_name
+        description: Name of the EIA source. Key of this table.
+        data_tests:
+          - not_null
+          - unique
+      - name: grain
+        description: Time grain of the source, month or day.
+      - name: first_period
+        description: Earliest period in the source.
+      - name: last_period
+        description: Latest period in the source.
+      - name: last_loaded_at
+        description: Most recent load timestamp for the source.
+      - name: row_count
+        description: Number of staged rows in the source.
+      - name: days_since_last_period
+        description: Days between the latest period and today.
+      - name: days_behind_newest_source
+        description: Days between the latest period and the newest period across all sources.
+        
   # ---------- Dimensions ----------
   - name: _int_dim_date
     description: >
