@@ -1,0 +1,157 @@
+version: 2
+
+models:
+  - name: _stg_country_coordinates
+    description: >
+      Pass-through view of the country_coordinates seed, staged so the
+      reference data is documented in the stg layer before the intermediate
+      models use it. No transformation. One row per origin country, keyed
+      on origin_id.
+    columns:
+      - name: origin_id
+        description: EIA origin identifier. Natural key of this table.
+      - name: origin_name
+        description: Origin country name as published by EIA.
+      - name: iso2
+        description: Two-letter ISO 3166 country code.
+      - name: iso3
+        description: Three-letter ISO 3166 country code.
+      - name: continent
+        description: Continent the origin belongs to.
+      - name: is_known
+        description: Flag for whether the origin was matched to a known country.
+      - name: longitude
+        description: Longitude of the point used to place the origin on a map.
+      - name: latitude
+        description: Latitude of the point used to place the origin on a map.
+
+  - name: _stg_eia_crude_imports
+    description: >
+      Monthly U.S. crude oil imports from the EIA API, one row per month,
+      origin, destination and grade. Unpacks the raw JSON row into typed
+      columns, converts period to a date, and strips the CTY_ prefix from
+      the origin id. No rows are filtered or aggregated.
+    columns:
+      - name: period
+        description: First day of the reporting month, converted from the raw YYYY-MM text.
+      - name: origin_id
+        description: EIA origin country id with the CTY_ prefix removed, so it joins to the country seed.
+      - name: destination_id
+        description: EIA destination (port) id.
+      - name: destination_name
+        description: Destination port name as published by EIA.
+      - name: destination_type
+        description: EIA code for the destination type.
+      - name: destination_type_name
+        description: Description of the destination type.
+      - name: grade_id
+        description: EIA crude oil grade id.
+      - name: grade_name
+        description: Crude oil grade name, such as its sulfur and density class.
+      - name: origin_name
+        description: Origin country name as published by EIA.
+      - name: origin_type
+        description: EIA code for the origin type.
+      - name: origin_type_name
+        description: Description of the origin type.
+      - name: quantity
+        description: Imported volume for the month, cast to an integer.
+      - name: quantity_units
+        description: Unit of measure for quantity, as published by EIA.
+      - name: row_hash
+        description: Hash of the raw row, added at ingestion.
+      - name: _batch_id
+        description: Identifier of the ingestion batch that loaded the row.
+      - name: _loaded_at
+        description: Timestamp when the row was loaded into the raw table.
+
+  - name: _stg_eia_electricity_daily_fuel_type
+    description: >
+      Daily electricity generation by fuel type from the EIA API, one row
+      per day, respondent and fuel type. Unpacks the raw JSON row into typed
+      columns, converts period to a date, and renames fueltype and timezone.
+      No rows are filtered. The US48 respondent is the national total and
+      overlaps the individual operators, so it must never be summed with
+      them. Storage fuel types can be negative.
+    columns:
+      - name: period
+        description: Date of the generation, converted from the raw YYYY-MM-DD text.
+      - name: respondent
+        description: EIA code for the balancing authority or region reporting the generation.
+      - name: fuel_type
+        description: EIA fuel type code, renamed from fueltype.
+      - name: time_zone
+        description: EIA time zone code the daily totals are based on, renamed from timezone.
+      - name: respondent_name
+        description: Respondent name as published by EIA.
+      - name: time_zone_description
+        description: Description of the time zone.
+      - name: type_name
+        description: Fuel type name as published by EIA.
+      - name: value
+        description: Generation for the day, cast to an integer. Can be negative for storage.
+      - name: value_units
+        description: Unit of measure for value, as published by EIA.
+      - name: row_hash
+        description: Hash of the raw row, added at ingestion.
+      - name: _batch_id
+        description: Identifier of the ingestion batch that loaded the row.
+      - name: _loaded_at
+        description: Timestamp when the row was loaded into the raw table.
+
+  - name: _stg_eia_spot_prices
+    description: >
+      Daily WTI and Brent crude oil spot prices from the EIA API, one row
+      per day and price series. Unpacks the raw JSON row into typed columns
+      and converts period to a date. No rows are filtered. Weekends and
+      market holidays have no rows, and WTI is negative on 2020-04-20, so
+      value is not guaranteed to be positive.
+    columns:
+      - name: period
+        description: Trading date of the price, converted from the raw YYYY-MM-DD text.
+      - name: series
+        description: EIA price series code, RWTC for WTI and RBRTE for Brent.
+      - name: area_name
+        description: Pricing area name as published by EIA.
+      - name: duoarea
+        description: EIA code for the pricing area.
+      - name: process
+        description: EIA code for the process the price refers to.
+      - name: process_name
+        description: Description of the process, such as spot price.
+      - name: product
+        description: EIA product code.
+      - name: product_name
+        description: Product name, such as the crude oil blend being priced.
+      - name: series_description
+        description: Full EIA description of the price series.
+      - name: units
+        description: Unit of measure for value, as published by EIA.
+      - name: value
+        description: Spot price for the day, cast to number(12,4). Can be negative.
+      - name: row_hash
+        description: Hash of the raw row, added at ingestion.
+      - name: _batch_id
+        description: Identifier of the ingestion batch that loaded the row.
+      - name: _loaded_at
+        description: Timestamp when the row was loaded into the raw table.
+
+  - name: _stg_port_coordinates
+    description: >
+      Pass-through view of the port_coordinates seed, staged so the
+      reference data is documented in the stg layer before the intermediate
+      models use it. No transformation. One row per destination port, keyed
+      on destination_id.
+    columns:
+      - name: destination_id
+        description: EIA destination (port) identifier. Natural key of this table.
+      - name: port_name
+        description: Port name as published by EIA.
+      - name: state
+        description: U.S. state the port is in.
+      - name: latitude
+        description: Latitude of the point used to place the port on a map.
+      - name: longitude
+        description: Longitude of the point used to place the port on a map.
+      - name: coordinate_basis
+        description: How the coordinates for this port were derived.

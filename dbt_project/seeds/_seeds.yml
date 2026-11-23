@@ -1,0 +1,62 @@
+version: 2
+
+seeds:
+  - name: country_coordinates
+    description: >
+      Reference table of crude oil origin countries with ISO codes, continent
+      and a representative longitude/latitude, used to map import flows.
+      Keyed on origin_id.
+    config:
+      column_types:
+        origin_id: varchar
+        origin_name: varchar
+        iso2: varchar
+        iso3: varchar
+        continent: varchar
+        is_known: boolean
+        longitude: float
+        latitude: float
+    columns:
+      - name: origin_id
+        description: EIA origin identifier. Natural key of this table.
+      - name: origin_name
+        description: Origin country name as published by EIA.
+      - name: iso2
+        description: Two-letter ISO 3166 country code.
+      - name: iso3
+        description: Three-letter ISO 3166 country code.
+      - name: continent
+        description: Continent the origin belongs to.
+      - name: is_known
+        description: Flag for whether the origin was matched to a known country.
+      - name: longitude
+        description: Longitude of the point used to place the origin on a map.
+      - name: latitude
+        description: Latitude of the point used to place the origin on a map.
+
+  - name: port_coordinates
+    description: >
+      Reference table of U.S. crude oil import destination ports with state
+      and a longitude/latitude, used to map import flows. Keyed on
+      destination_id.
+    config:
+      column_types:
+        destination_id: varchar
+        port_name: varchar
+        state: varchar
+        latitude: float
+        longitude: float
+        coordinate_basis: varchar
+    columns:
+      - name: destination_id
+        description: EIA destination (port) identifier. Natural key of this table.
+      - name: port_name
+        description: Port name as published by EIA.
+      - name: state
+        description: U.S. state the port is in.
+      - name: latitude
+        description: Latitude of the point used to place the port on a map.
+      - name: longitude
+        description: Longitude of the point used to place the port on a map.
+      - name: coordinate_basis
+        description: How the coordinates for this port were derived.

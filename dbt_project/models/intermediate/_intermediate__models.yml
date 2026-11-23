@@ -1,0 +1,186 @@
+version: 2
+
+models:
+  # ---------- Helpers ----------
+  - name: _int_period_start_end
+    description: >
+      Single-row helper holding the earliest and latest period found across
+      the crude imports, spot prices and electricity staging models. Drives
+      the length of the date spine.
+    columns:
+      - name: start_date
+        description: Earliest period across the three EIA sources.
+      - name: end_date
+        description: Latest period across the three EIA sources.
+
+  - name: _int_date_spine
+    description: >
+      One row per calendar day, from the first day of the month containing
+      the earliest source period through the latest source period. Feeds
+      the date dimension.
+    columns:
+      - name: date_day
+        description: Calendar date. One row per day.
+
+  # ---------- Dimensions ----------
+  - name: _int_dim_date
+    description: >
+      Date dimension with one row per calendar day, built from the date
+      spine. Keyed on date_day. month_start_date is the join key for the
+      monthly crude imports fact.
+    columns:
+      - name: date_day
+        description: Calendar date. Key of this table.
+      - name: month_start_date
+        description: First day of the month the date falls in. Used to join monthly data.
+      - name: date_year
+        description: Calendar year number.
+      - name: date_quarter
+        description: Calendar quarter number, 1 to 4.
+      - name: month_num
+        description: Month number, 1 to 12.
+      - name: month_name
+        description: Abbreviated month name.
+
+  - name: _int_dim_fuel_type
+    description: >
+      Electricity fuel type dimension with one row per fuel type code. The
+      name is taken from the most recent period in which the code appears.
+      Keyed on fuel_type.
+    columns:
+      - name: fuel_type
+        description: EIA fuel type code. Key of this table.
+      - name: type_name
+        description: Fuel type name, taken from the latest period for the code.
+
+  - name: _int_dim_grade
+    description: >
+      Crude oil grade dimension with one row per grade, taken from the
+      distinct grades in the crude imports staging model. Keyed on grade_id.
+    columns:
+      - name: grade_id
+        description: EIA crude oil grade id. Key of this table.
+      - name: grade_name
+        description: Grade name as published by EIA.
+
+  - name: _int_dim_origin_country
+    description: >
+      Origin country dimension with one row per origin, including ISO codes,
+      continent and map coordinates from the country seed. Keyed on
+      origin_id.
+    columns:
+      - name: origin_id
+        description: EIA origin identifier. Key of this table.
+      - name: origin_name
+        description: Origin country name as published by EIA.
+      - name: iso2
+        description: Two-letter ISO 3166 country code.
+      - name: iso3
+        description: Three-letter ISO 3166 country code.
+      - name: continent
+        description: Continent the origin belongs to.
+      - name: is_known
+        description: Flag for whether the origin was matched to a known country.
+      - name: longitude
+        description: Longitude of the point used to place the origin on a map.
+      - name: latitude
+        description: Latitude of the point used to place the origin on a map.
+
+  - name: _int_dim_port
+    description: >
+      Destination port dimension with one row per U.S. import port, with
+      state and map coordinates from the port seed. Keyed on destination_id.
+    columns:
+      - name: destination_id
+        description: EIA destination (port) identifier. Key of this table.
+      - name: port_name
+        description: Port name as published by EIA.
+      - name: state
+        description: U.S. state the port is in.
+      - name: longitude
+        description: Longitude of the point used to place the port on a map.
+      - name: latitude
+        description: Latitude of the point used to place the port on a map.
+      - name: coordinate_basis
+        description: How the coordinates for this port were derived.
+
+  - name: _int_dim_price_series
+    description: >
+      Spot price series dimension with one row per EIA price series, taken
+      from the distinct series in the spot prices staging model and labelled
+      with a benchmark name. Keyed on series.
+    columns:
+      - name: series
+        description: EIA price series code, RWTC for WTI and RBRTE for Brent. Key of this table.
+      - name: series_description
+        description: Full EIA description of the series.
+      - name: product_name
+        description: Product name as published by EIA.
+      - name: area_name
+        description: Pricing area name as published by EIA.
+      - name: units
+        description: Unit of measure for the price.
+      - name: benchmark
+        description: Friendly benchmark name, WTI or Brent. Falls back to the series code for any other series.
+
+  - name: _int_dim_respondent
+    description: >
+      Electricity respondent dimension with one row per balancing authority
+      or region reporting generation. Keyed on respondent.
+    columns:
+      - name: respondent
+        description: EIA respondent code. Key of this table.
+      - name: respondent_name
+        description: Respondent name as published by EIA.
+      - name: is_reference
+        description: True for the US48 national total, which overlaps the individual operators and must not be summed with them.
+
+  # ---------- Facts ----------
+  - name: _int_fct_crude_imports
+    description: >
+      Fact table of crude oil imports at the grain of one row per month,
+      grade, destination and origin. Quantity is the imported volume for
+      that month.
+    columns:
+      - name: date_day
+        description: First day of the reporting month. Joins to the date dimension.
+      - name: grade_id
+        description: Joins to the grade dimension.
+      - name: destination_id
+        description: Joins to the port dimension.
+      - name: origin_id
+        description: Joins to the origin country dimension.
+      - name: quantity
+        description: Imported volume for the month.
+      - name: units
+        description: Unit of measure for quantity, as published by EIA.
+
+  - name: _int_fct_electricity_daily
+    description: >
+      Fact table of electricity generation at the grain of one row per day,
+      respondent and fuel type. Generation can be negative for storage fuel
+      types. Do not sum the US48 respondent with the individual operators.
+    columns:
+      - name: date_day
+        description: Date of the generation. Joins to the date dimension.
+      - name: respondent
+        description: Joins to the respondent dimension.
+      - name: fuel_type
+        description: Joins to the fuel type dimension.
+      - name: generation
+        description: Generation for the day. Can be negative for storage.
+      - name: value_units
+        description: Unit of measure for generation, as published by EIA.
+
+  - name: _int_fct_spot_prices
+    description: >
+      Fact table of crude oil spot prices at the grain of one row per day
+      and price series. Weekends and market holidays have no rows, and the
+      price can be negative (WTI on 2020-04-20).
+    columns:
+      - name: date_day
+        description: Trading date of the price. Joins to the date dimension.
+      - name: series
+        description: Joins to the price series dimension.
+      - name: price
+        description: Spot price for the day. Can be negative.
