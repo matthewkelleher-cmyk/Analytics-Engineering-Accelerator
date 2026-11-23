@@ -1,0 +1,229 @@
+version: 2
+
+models:
+  - name: mart_spot_prices_daily
+    description: >
+      Daily WTI and Brent spot prices with the Brent-WTI spread, one row per
+      day that has at least one price. Weekends and market holidays have no
+      rows. The spread is null on days with only one price, and prices can
+      be negative (WTI on 2020-04-20). Built for BI tools without relying on
+      relationships between tables.
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "brent_wti_spread is null or (wti_price is not null and brent_price is not null)"
+    columns:
+      - name: date_day
+        description: Trading date. Key of this table.
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('_int_dim_date')
+                field: date_day
+      - name: month_start_date
+        description: First day of the month the date falls in.
+        data_tests:
+          - not_null
+      - name: date_year
+        description: Calendar year number.
+      - name: date_quarter
+        description: Calendar quarter number, 1 to 4.
+      - name: month_num
+        description: Month number, 1 to 12.
+      - name: month_name
+        description: Abbreviated month name.
+      - name: wti_price
+        description: WTI spot price for the day. Null on days with no WTI price. Can be negative.
+      - name: brent_price
+        description: Brent spot price for the day. Null on days with no Brent price.
+      - name: brent_wti_spread
+        description: Brent price minus WTI price. Null when either price is missing.\
+
+  - name: mart_electricity_generation_daily
+    description: >
+      Daily electricity generation by respondent and fuel type, one row per
+      day, respondent and fuel type, with date attributes and names from
+      the dimensions. The US48 respondent is the national total and
+      overlaps the individual operators, so filter is_reference to false
+      before summing across respondents. Generation can be negative for
+      storage fuel types.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('_int_fct_electricity_daily')
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - date_day
+              - respondent
+              - fuel_type
+    columns:
+      - name: date_day
+        description: Date of the generation.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('_int_dim_date')
+                field: date_day
+      - name: month_start_date
+        description: First day of the month the date falls in.
+        data_tests:
+          - not_null
+      - name: date_year
+        description: Calendar year number.
+      - name: date_quarter
+        description: Calendar quarter number, 1 to 4.
+      - name: month_num
+        description: Month number, 1 to 12.
+      - name: month_name
+        description: Abbreviated month name.
+      - name: respondent
+        description: EIA respondent code.
+        data_tests:
+          - not_null
+      - name: respondent_name
+        description: Respondent name as published by EIA.
+      - name: is_reference
+        description: True for the US48 national total, which overlaps the individual operators and must not be summed with them.
+      - name: fuel_type
+        description: EIA fuel type code.
+        data_tests:
+          - not_null
+      - name: fuel_type_name
+        description: Fuel type name from the fuel type dimension.
+      - name: generation
+        description: Generation for the day. Can be negative for storage.
+        data_tests:
+          - not_null
+      - name: value_units
+        description: Unit of measure for generation, as published by EIA.
+
+  - name: mart_crude_import_flows_monthly
+    description: >
+      Monthly U.S. crude oil imports by origin country, destination port and
+      grade, one row per month, origin, port and grade. Each row carries the
+      coordinates of both the origin and the port so BI tools can draw flow
+      lines without joining tables. Origin and port details are left-joined,
+      so imports from a code missing in the seeds keep their quantity with
+      null coordinates.
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('_int_fct_crude_imports')
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - month_start_date
+              - origin_id
+              - destination_id
+              - grade_id
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "origin_longitude is not null or is_known = false"
+    columns:
+      - name: month_start_date
+        description: First day of the reporting month.
+        data_tests:
+          - not_null
+      - name: date_year
+        description: Calendar year number.
+      - name: date_quarter
+        description: Calendar quarter number, 1 to 4.
+      - name: month_num
+        description: Month number, 1 to 12.
+      - name: month_name
+        description: Abbreviated month name.
+      - name: origin_id
+        description: EIA origin country id.
+        data_tests:
+          - not_null
+      - name: origin_name
+        description: Origin country name.
+      - name: iso2
+        description: Two-letter ISO 3166 country code of the origin.
+      - name: iso3
+        description: Three-letter ISO 3166 country code of the origin.
+      - name: continent
+        description: Continent the origin belongs to.
+      - name: is_known
+        description: Flag for whether the origin was matched to a known country.
+      - name: origin_longitude
+        description: Longitude of the point used to place the origin on a map.
+      - name: origin_latitude
+        description: Latitude of the point used to place the origin on a map.
+      - name: destination_id
+        description: EIA destination (port) id.
+        data_tests:
+          - not_null
+      - name: port_name
+        description: Destination port name.
+      - name: port_state
+        description: U.S. state the port is in.
+      - name: port_longitude
+        description: Longitude of the point used to place the port on a map.
+      - name: port_latitude
+        description: Latitude of the point used to place the port on a map.
+      - name: coordinate_basis
+        description: How the coordinates for the port were derived.
+      - name: grade_id
+        description: EIA crude oil grade id.
+        data_tests:
+          - not_null
+      - name: grade_name
+        description: Crude oil grade name.
+      - name: quantity
+        description: Imported volume for the month.
+        data_tests:
+          - not_null
+      - name: units
+        description: Unit of measure for quantity, as published by EIA.
+
+  - name: mart_energy_overview_monthly
+    description: >
+      Monthly overview combining crude oil imports, average WTI and Brent
+      spot prices and U.S. national electricity generation, one row per
+      month. Each source is aggregated to the month before joining, so no
+      source multiplies another. Electricity uses only the US48 national
+      total. A source with no data for a month is null, not zero. Use
+      is_complete_month to exclude months the data has not fully reached.
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "electricity_days is null or electricity_days <= days_in_month"
+    columns:
+      - name: month_start_date
+        description: First day of the month. Key of this table.
+        data_tests:
+          - not_null
+          - unique
+      - name: date_year
+        description: Calendar year number.
+      - name: date_quarter
+        description: Calendar quarter number, 1 to 4.
+      - name: month_num
+        description: Month number, 1 to 12.
+      - name: month_name
+        description: Abbreviated month name.
+      - name: days_in_month
+        description: Number of calendar days in the month.
+      - name: is_complete_month
+        description: True when every day of the month falls on or before the newest date available in any source.
+      - name: total_import_quantity
+        description: Total crude oil imported in the month across all origins, ports and grades. Null when no import data exists for the month.
+      - name: origin_count
+        description: Number of distinct origins that supplied crude in the month.
+      - name: avg_wti_price
+        description: Average WTI spot price over the month's trading days.
+      - name: avg_brent_price
+        description: Average Brent spot price over the month's trading days.
+      - name: avg_brent_wti_spread
+        description: Average Brent minus WTI spread over days with both prices.
+      - name: price_days
+        description: Number of days in the month with at least one spot price.
+      - name: us48_generation
+        description: Total generation for the US48 national total across fuel types, including negative storage values.
+      - name: electricity_days
+        description: Number of days in the month with US48 generation data.
