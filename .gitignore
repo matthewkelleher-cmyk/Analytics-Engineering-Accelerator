@@ -16,6 +16,7 @@ venv/
 target/
 dbt_packages/
 logs/
+dbt_project/.user.yml
 
 # Editor and tool files
 .DS_Store
