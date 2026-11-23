@@ -13,8 +13,12 @@ models:
   eia_energy:
     staging:
       +materialized: view 
-    # intermediate: 
-    #   +materialized: view 
+    intermediate: 
+      +materialized: view 
+      dimensions:
+        +materialized: table 
+      facts:
+        +materialized: table 
     marts:
       +materialized: table 
 seeds: 
