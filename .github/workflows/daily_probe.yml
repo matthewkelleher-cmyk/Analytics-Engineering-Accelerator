@@ -1,9 +1,10 @@
-name: Daily EIA probe
+name: Daily EIA probe and dbt build
 
 # Runs the freshness probe: asks EIA what is newest, loads only the sources that have
-# something new, and writes every decision to MK_RAW.PIPELINE_RUN_LOG.
+# something new, and writes every decision to MK_RAW.PIPELINE_RUN_LOG. Then builds and
+# tests the dbt project into the production schemas (dbt_mk_stg, dbt_mk_int, dbt_mk_mart).
 on:
-  workflow_dispatch:   # manual run: Actions tab, "Daily EIA probe", "Run workflow"
+  workflow_dispatch:   # manual run: Actions tab, "Daily EIA probe and dbt build", "Run workflow"
   # GitHub does not start scheduled runs at exact times, and may disable them on a public
   # repo after a period without activity (check GitHub's docs for the current rule).
   schedule:
@@ -42,3 +43,15 @@ jobs:
           SNOWFLAKE_DATABASE: TIL_DATA_ENGINEERING
           SNOWFLAKE_RAW_SCHEMA: MK_RAW
         run: python ingestion/probe.py
+
+      - name: Install dbt packages
+        working-directory: dbt_project
+        run: dbt deps
+
+      - name: Build and test dbt models (prod)
+        working-directory: dbt_project
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+        run: dbt build --target prod
