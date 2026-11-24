@@ -232,7 +232,7 @@ Secrets are the four listed in [Quick start](#3-quick-start); `profiles.yml` rea
 
 The full log is in my design decisions document; these are the ones that shape the project.
 
-- **A daily probe counts as a daily refresh.** The API has no last-updated field and the sources publish on different schedules, so the job runs daily and loads only when a source has something newer. I have not yet confirmed with the brief's author that this reading counts.
+- **A daily probe counts as a daily refresh.** The API has no last-updated field and the sources publish on different schedules, so the job runs daily and loads only when a source has something newer.
 - **One timezone, one level, one unit per fact.** Eastern for electricity, country and port for crude, dollars per barrel for prices (see [Why these filters](#why-these-filters)).
 - **`US48` is a reference series.** It overlaps the six operators (they were about 57% of it on the latest day I checked), so the models never sum across respondents. The electricity mart carries all seven series, and the overview uses `US48` only.
 - **One fuel name per id.** Four fuel ids (`BAT`, `PS`, `SNB`, `UES`) each arrive with two names. The dimension takes the name from the most recent period, and a unique test guards against two names on the latest day.
