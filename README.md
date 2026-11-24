@@ -249,7 +249,7 @@ The full log is in my design decisions document; these are the ones that shape t
 |---|---|---|
 | Company Snowflake instance | Personal Snowflake trial with the same database and schema names (`TIL_DATA_ENGINEERING`, `mk` prefix), so a move changes only account details | I could not reach the company instance because of authentication |
 | A single final mart table | One **core** mart, `mart_electricity_generation_daily`, plus three extra marts (crude flows, spot prices, monthly overview) | I chose to bring in sources with different grains, and each question gets a mart at its own grain |
-| Data refreshing daily | The workflow runs every day. Electricity, the core source, advances almost daily. Crude imports refresh monthly and spot prices weekly. A source loads only when it has a newer period | The API has no last-updated field and sources publish on different schedules. To confirm with the brief's author that this counts |
+| Data refreshing daily | The workflow runs every day. Electricity, the core source, advances almost daily. Crude imports refresh monthly and spot prices weekly. A source loads only when it has a newer period | The API has no last-updated field and sources publish on different schedules.|
 | Star schema as staging and intermediate models | Facts and dimensions sit in the intermediate layer (`_int_dim_*`, `_int_fct_*`); marts stay for analysts | The brief allows it |
 | Dashboard not assessed | Built anyway, in Tableau Public | To check the marts work without joins or calculations in the BI tool |
 
